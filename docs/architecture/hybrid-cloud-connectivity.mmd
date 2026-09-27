@@ -1,0 +1,64 @@
+flowchart LR
+  subgraph DC["On-Premises Data Center | 172.16.0.0/16"]
+    Users["Corporate workloads"]
+    DNS["DNS\n172.16.10.10"]
+    CGW["Customer Gateway\nBGP ASN 65000"]
+    Users --> CGW
+    DNS --> CGW
+  end
+
+  subgraph AWS["AWS Region"]
+    VPN["Site-to-Site VPN\n2 x IKEv2/IPsec tunnels\nBGP"]
+    TGW["Transit Gateway\nASN 64512"]
+    NFW["AWS Network Firewall\ncentral inspection"]
+
+    subgraph Dev["Dev VPC | 10.10.0.0/16"]
+      DevA["Private subnet AZ-A"]
+      DevB["Private subnet AZ-B"]
+    end
+
+    subgraph Staging["Staging VPC | 10.20.0.0/16"]
+      StgA["Private subnet AZ-A"]
+      StgB["Private subnet AZ-B"]
+    end
+
+    subgraph Prod["Prod VPC | 10.30.0.0/16"]
+      ProdA["Private subnet AZ-A"]
+      ProdB["Private subnet AZ-B"]
+    end
+
+    subgraph Shared["Shared Services VPC | 10.100.0.0/16"]
+      R53In["Route 53 Resolver\nInbound endpoint"]
+      R53Out["Route 53 Resolver\nOutbound endpoint"]
+      PHZ["Private hosted zone\naws.example.internal"]
+    end
+
+    RAM["AWS RAM\noptional cross-account share"]
+    Audit["CloudTrail + Config\nVPC Flow Logs"]
+
+    VPN --> TGW
+    TGW --> NFW
+    NFW --> TGW
+    TGW --> Dev
+    TGW --> Staging
+    TGW --> Prod
+    TGW --> Shared
+    R53In --- PHZ
+    R53Out --- Shared
+    RAM -. shares .-> TGW
+    Audit -. observes .-> TGW
+  end
+
+  CGW == "IPsec + BGP" ==> VPN
+  DNS -. "corp.example.internal" .-> R53Out
+  R53In -. "aws.example.internal" .-> DNS
+
+  classDef hub fill:#8C4FFF,color:#fff,stroke:#4B237A,stroke-width:2px;
+  classDef security fill:#DD344C,color:#fff,stroke:#8A1C2D,stroke-width:2px;
+  classDef network fill:#2774AE,color:#fff,stroke:#17496F,stroke-width:2px;
+  classDef dns fill:#1B660F,color:#fff,stroke:#0D3D07,stroke-width:2px;
+  class TGW hub;
+  class NFW security;
+  class VPN,CGW network;
+  class R53In,R53Out,PHZ,DNS dns;
+

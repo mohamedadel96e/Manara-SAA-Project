@@ -1,0 +1,26 @@
+project_name = "hybrid-tgw-lab"
+aws_region   = "us-east-1"
+
+# Replace this documentation-only IP with the static public IPv4 address of
+# your real customer gateway device before running terraform apply.
+customer_gateway_public_ip = "203.0.113.10"
+customer_gateway_bgp_asn   = 65000
+transit_gateway_bgp_asn    = 64512
+
+on_prem_cidr    = "172.16.0.0/16"
+on_prem_dns_ips = ["172.16.10.10"]
+
+private_aws_domain = "aws.example.internal"
+on_prem_domain     = "corp.example.internal"
+
+# Network Firewall, Transit Gateway, Site-to-Site VPN, and Resolver endpoints
+# have hourly charges. Set this to false for a cheaper direct-routing lab.
+enable_network_firewall = true
+
+# Example organization, OU, or account ARNs. Leave empty for one account.
+ram_principal_arns = []
+
+tags = {
+  Owner       = "network-team"
+  Environment = "lab"
+}

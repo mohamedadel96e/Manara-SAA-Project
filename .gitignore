@@ -1,0 +1,28 @@
+# Terraform working data and state can contain sensitive VPN configuration.
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local variable and credential files
+*.tfvars
+!terraform/terraform.tfvars.example
+.env
+.env.*
+
+# Generated customer gateway configuration contains sensitive material.
+customer-gateway-config.xml
+vpn-config/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
